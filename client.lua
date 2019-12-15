@@ -1,25 +1,34 @@
 local handcuff = false
 
 RegisterNetEvent("Handcuff")
-AddEventHandler("Handcuff", function()
+AddEventHandler("Handcuff", function(cuffedByPlayer)
 	local lPed = GetPlayerPed(-1)
-	if DoesEntityExist(lPed) then
-		if IsEntityPlayingAnim(lPed, "mp_arresting", "idle", 3) then
-			ClearPedSecondaryTask(lPed)
-			SetEnableHandcuffs(lPed, false)
-			SetCurrentPedWeapon(lPed, GetHashKey("WEAPON_UNARMED"), true)
-			handcuff = false
-		else
-			RequestAnimDict("mp_arresting")
-			while not HasAnimDictLoaded("mp_arresting") do
-				Citizen.Wait(100)
-			end
+	local playerId = GetPlayerFromServerId(cuffedByPlayer)
+	local x1, y1, z1 = table.unpack( GetEntityCoords( GetPlayerPed( -1 ), true ) )
+	local x2, y2, z2 = table.unpack( GetEntityCoords( GetPlayerPed( playerId ), true ) )
+	local distance = math.floor(GetDistanceBetweenCoords(x1,  y1,  z1,  x2,  y2,  z2,  true))
+	if distance <= 10 then 
+		if DoesEntityExist(lPed) then
+			if IsEntityPlayingAnim(lPed, "mp_arresting", "idle", 3) then
+				ClearPedSecondaryTask(lPed)
+				SetEnableHandcuffs(lPed, false)
+				SetCurrentPedWeapon(lPed, GetHashKey("WEAPON_UNARMED"), true)
+				handcuff = false
+			else
+				RequestAnimDict("mp_arresting")
+				while not HasAnimDictLoaded("mp_arresting") do
+					Citizen.Wait(100)
+				end
 
-			TaskPlayAnim(lPed, "mp_arresting", "idle", 8.0, -8, -1, 49, 0, 0, 0, 0)
-			SetEnableHandcuffs(lPed, true)
-			SetCurrentPedWeapon(lPed, GetHashKey("WEAPON_UNARMED"), true)
-			handcuff = true
+				TaskPlayAnim(lPed, "mp_arresting", "idle", 8.0, -8, -1, 49, 0, 0, 0, 0)
+				SetEnableHandcuffs(lPed, true)
+				SetCurrentPedWeapon(lPed, GetHashKey("WEAPON_UNARMED"), true)
+				handcuff = true
+			end
 		end
+	else 
+		-- They are too far to cuff 
+		TriggerServerEvent('Cuff-Plus:SendMessage', cuffedByPlayer, '^1ERROR: That player is too far to cuff...')
 	end
 end)
 
