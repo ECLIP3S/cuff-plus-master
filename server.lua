@@ -9,7 +9,7 @@ AddEventHandler("chatMessage", function(source, name, message)
 		CancelEvent()
 		if tablelength(cm) > 1 then
 			local tPID = tonumber(cm[2])
-			TriggerClientEvent("Handcuff", tPID)
+			TriggerClientEvent("Handcuff", tPID, source)
 		end
 	end
 
@@ -17,6 +17,11 @@ AddEventHandler("chatMessage", function(source, name, message)
 		CancelEvent()
 		TriggerClientEvent("Handsup", source)
 	end
+end)
+
+RegisterNetEvent('Cuff-Plus:SendMessage')
+AddEventHandler('Cuff-Plus:SendMessage', function(src, msg)
+	TriggerClientEvent('chatMessage', src, msg)
 end)
 
 function stringsplit(inputstr, sep)
